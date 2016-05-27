@@ -114,76 +114,25 @@ include("C:/Users/epintos/Dropbox/Esteban/Tesis - privado/Julia/MCRAFT_SF_05.jl"
     print_counter = 1
     """
 
+    function linearwalk(R)
+      partialcumsum = 0.0
+      r2 = rand()*sum(R)
+      i = 1
+      while true
+          partialcumsum += R[i]
+          if r2 <= partialcumsum
+              return i
+          end
+          i += 1
+      end
+    end
+
     #MC simluation starts here
     while t_r < t_f
 
-        #iter += 1
+        reacselec = linearwalk(Re)
 
-        #Reaction selection - this could be improved
-        #p1 = Re[1]
-        p2 = Re[1]+Re[2]
-        p3 = p2+Re[3]
-        p4 = p3+Re[4]
-        R_t = (p4+Re[5]+Re[6])+(Re[7]+Re[9]+Re[11])+(Re[12]+Re[13]+Re[14])
-
-        r2 = rand()*R_t;
-
-        if r2 > p4
-            reacselec = 5;
-            p5 = p4+Re[5]
-            if r2 > p5
-                reacselec = 6;
-                p6 = p5+Re[6]
-                if r2 > p6
-                    reacselec = 7;
-                    p7 = p6+Re[7]
-                    p8 = p7+Re[8]
-                    #if r2 > (Re[1]+Re[2]+Re[3]+Re[4]+Re[5]+Re[6]+Re[7])/(R_t)
-                        #reacselec = 8;
-                        if r2 > p8
-                            reacselec = 9;
-                            p9 = p8+Re[9]
-                            p10 = p9+Re[10]
-                            #if r2 > (Re[1]+Re[2]+Re[3]+Re[4]+Re[5]+Re[6]+Re[7]+Re[8]+Re[9])/(R_t)
-                                #reacselec = 10;
-                                if r2 > p10
-                                    reacselec = 11;
-                                    p11 = p10+Re[11]
-                                    if r2 > p11
-                                        reacselec = 12;
-                                        p12 = p11+Re[12]
-                                        if r2 > p12
-                                            reacselec = 13;
-                                            p13 = p12+Re[13]
-                                            if r2 > p13
-                                                reacselec = 14;
-                                            end
-                                        end
-                                    end
-                                end
-                            #end
-                        end
-                    #end
-                end
-            end
-        elseif r2 > p2
-            reacselec = 3;
-            if r2 > p3
-                reacselec = 4;
-            end
-        elseif r2 < Re[1] #CUIDADO ACA DI VUELTA EL SIGNO DE LA DESIGUALDAD y la reaccion
-            reacselec = 1;
-        else
-            reacselec = 2;
-        end
-
-
-        #Reaction time update (This might change in 0.4 to randexp() )
-        #t_r = t_r + (-log(rand()))/(R_t) #original
-        #t_r = t_r + rand(Exponential(1/R_t))
-        #Also tried creating an array of Exponential(1) but it was the same as previous
         t_r = t_r + randexp()/R_t #this is even faster
-        #t_r = t_r + rand()/R_t #stupid test (didnt work, double time, wrong results)
 
 
         if reacselec == 1
