@@ -1,6 +1,9 @@
 function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
     """
+
+include("C:/Users/epintos/Dropbox/Esteban/Tesis - privado/Julia/MCRAFT_SF_05.jl")
+
     Variable initialization starts here.
     When porting to Julia 0.4, pay extra attention to the integer conversion and integer functions.
     For example, instead of ifloor(x) --> change to floor(Integer, x)
@@ -27,9 +30,9 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
     t_f = tfinal #this might be unnecesary
 
-    n_mon = ifloor(M0*Avogadrof)
-    n_ini = ifloor(I0*Avogadrof)
-    n_cta = ifloor(CTA0*Avogadrof)
+    n_mon = floor(Integer,M0*Avogadrof)
+    n_ini = floor(Integer,I0*Avogadrof)
+    n_cta = floor(Integer,CTA0*Avogadrof)
     nmon_inic = n_mon
     nini_inic = n_ini
     ncta_inic = n_cta
@@ -87,25 +90,26 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
     Rate constants are calculated outside the loop initially and update only when needed, inside
     the loop. Also, only the constants that were modified are calculated.
     """
-    R1 = kd*n_ini
-    R2 = ki*n_mon*n_istar
-    R3 = kp*n_mon*n_rad
-    R4 = ka*n_cta*n_rad
-    R5 = ka*n_istar*n_raft1
-    R6 = 0.5*kf*n_rstar #the 0.5 is there because RAFT* reacts with 0.5 chance to R6 and 0.5 to R7
-    R7 = 0.5*kf*n_rstar #same than R6
-    R8 = 0.0; #Since we are sure this reaction doesnt go anymore, it could be removed
-    R9 = ka*n_rad*n_raft1
-    R10 = 0.0; #same than R8
-    R11 = 0.5*kf*n_raft2 #same than R6
-    R12 = 0.5*kf*n_raft2 #same than R6
-    R13 = ktc*n_rad*(n_rad-1)
-    R14 = ktd*n_rad*(n_rad-1)
+    Re = zeros(Float64,14)
+    Re[1] = kd*n_ini
+    Re[2] = ki*n_mon*n_istar
+    Re[3] = kp*n_mon*n_rad
+    Re[4] = ka*n_cta*n_rad
+    Re[5] = ka*n_istar*n_raft1
+    Re[6] = 0.5*kf*n_rstar #the 0.5 is there because RAFT* reacts with 0.5 chance to Re[6] and 0.5 to Re[7]
+    Re[7] = 0.5*kf*n_rstar #same than Re[6]
+    Re[8] = 0.0; #Since we are sure this reaction doesnt go anymore, it could be removed
+    Re[9] = ka*n_rad*n_raft1
+    Re[10] = 0.0; #same than Re[8]
+    Re[11] = 0.5*kf*n_raft2 #same than Re[6]
+    Re[12] = 0.5*kf*n_raft2 #same than Re[6]
+    Re[13] = ktc*n_rad*(n_rad-1)
+    Re[14] = ktd*n_rad*(n_rad-1)
 
     """Debugging variables"""
     """
     species = ["tiempo","M","I","CTA","R","TP*","R*","TP","PTP","D","nothing"]
-    Concentrations = zeros(iceil(t_f/t_print)+1,length(species))
+    Concentrations = zeros(ceil(Integer,t_f/t_print)+1,length(species))
     Concentrations[1,:] = [t_r,M0,I0,CTA0,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]
     print_counter = 1
     """
@@ -116,29 +120,42 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         #iter += 1
 
         #Reaction selection - this could be improved
-        R_t = R1+R2+R3+R4+R5+R6+R7+R8+R9+R10+R11+R12+R13+R14;
+        #p1 = Re[1]
+        p2 = Re[1]+Re[2]
+        p3 = p2+Re[3]
+        p4 = p3+Re[4]
+        R_t = (p4+Re[5]+Re[6])+(Re[7]+Re[9]+Re[11])+(Re[12]+Re[13]+Re[14])
 
         r2 = rand()*R_t;
 
-        if r2 > (R1+R2+R3+R4)
+        if r2 > p4
             reacselec = 5;
-            if r2 > (R1+R2+R3+R4+R5)
+            p5 = p4+Re[5]
+            if r2 > p5
                 reacselec = 6;
-                if r2 > (R1+R2+R3+R4+R5+R6)
+                p6 = p5+Re[6]
+                if r2 > p6
                     reacselec = 7;
-                    #if r2 > (R1+R2+R3+R4+R5+R6+R7)/(R_t)
+                    p7 = p6+Re[7]
+                    p8 = p7+Re[8]
+                    #if r2 > (Re[1]+Re[2]+Re[3]+Re[4]+Re[5]+Re[6]+Re[7])/(R_t)
                         #reacselec = 8;
-                        if r2 > (R1+R2+R3+R4+R5+R6+R7+R8)
+                        if r2 > p8
                             reacselec = 9;
-                            #if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9)/(R_t)
+                            p9 = p8+Re[9]
+                            p10 = p9+Re[10]
+                            #if r2 > (Re[1]+Re[2]+Re[3]+Re[4]+Re[5]+Re[6]+Re[7]+Re[8]+Re[9])/(R_t)
                                 #reacselec = 10;
-                                if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9+R10)
+                                if r2 > p10
                                     reacselec = 11;
-                                    if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9+R10+R11)
+                                    p11 = p10+Re[11]
+                                    if r2 > p11
                                         reacselec = 12;
-                                        if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9+R10+R11+R12)
+                                        p12 = p11+Re[12]
+                                        if r2 > p12
                                             reacselec = 13;
-                                            if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9+R10+R11+R12+R13)
+                                            p13 = p12+Re[13]
+                                            if r2 > p13
                                                 reacselec = 14;
                                             end
                                         end
@@ -149,12 +166,12 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
                     #end
                 end
             end
-        elseif r2 > (R1+R2)
+        elseif r2 > p2
             reacselec = 3;
-            if r2 > (R1+R2+R3)
+            if r2 > p3
                 reacselec = 4;
             end
-        elseif r2 < R1 #CUIDADO ACA DI VUELTA EL SIGNO DE LA DESIGUALDAD y la reaccion
+        elseif r2 < Re[1] #CUIDADO ACA DI VUELTA EL SIGNO DE LA DESIGUALDAD y la reaccion
             reacselec = 1;
         else
             reacselec = 2;
@@ -165,7 +182,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         #t_r = t_r + (-log(rand()))/(R_t) #original
         #t_r = t_r + rand(Exponential(1/R_t))
         #Also tried creating an array of Exponential(1) but it was the same as previous
-        t_r = t_r + Base.Random.randmtzig_exprnd()/R_t #this is even faster
+        t_r = t_r + randexp()/R_t #this is even faster
         #t_r = t_r + rand()/R_t #stupid test (didnt work, double time, wrong results)
 
 
@@ -176,13 +193,13 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
             if rand() <= eff
                 n_istar = n_istar + 2;
-                R2 = ki*n_mon*n_istar;
-                R5 = ka*n_istar*n_raft1;
+                Re[2] = ki*n_mon*n_istar;
+                Re[5] = ka*n_istar*n_raft1;
             else
                 n_nothing = n_nothing + 2;
             end
 
-            R1 = kd*n_ini;
+            Re[1] = kd*n_ini;
 
 
         elseif reacselec == 2
@@ -195,19 +212,19 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds R[last_R] = 1;
             last_R = last_R + 1;
 
-            R2 = ki*n_mon*n_istar;
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R5 = ka*n_istar*n_raft1;
-            R9 = ka*n_rad*n_raft1;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[2] = ki*n_mon*n_istar;
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
 
         elseif reacselec == 3
             #Reacciones[3] += 1
 
-            Rselec = iceil(n_rad*rand())
+            Rselec = unsafe_trunc(Int,n_rad*rand())+1
             """
             if Rselec == 0
                 println("Rselec = 0 en reacselec == 3")
@@ -218,14 +235,14 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
             @inbounds R[Rselec] += 1;
 
-            R2 = ki*n_mon*n_istar;
-            R3 = kp*n_mon*n_rad;
+            Re[2] = ki*n_mon*n_istar;
+            Re[3] = kp*n_mon*n_rad;
 
 
         elseif reacselec == 4
             #Reacciones[4] += 1
 
-            Rselec = iceil(n_rad*rand())
+            Rselec = unsafe_trunc(Int,n_rad*rand())+1
             """
             if Rselec == 0
                 Rselec = n_rad
@@ -242,18 +259,18 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds R[last_R-1] = 0;
             last_R = last_R - 1;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R6 = 0.5*kf*n_rstar;
-            R7 = 0.5*kf*n_rstar;
-            R9 = ka*n_rad*n_raft1;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[6] = 0.5*kf*n_rstar;
+            Re[7] = 0.5*kf*n_rstar;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 5
             #Reacciones[5] += 1
 
-            TPselec = iceil(n_raft1*rand());
+            TPselec = unsafe_trunc(Int,n_raft1*rand())+1
 
             n_istar = n_istar - 1;
             n_raft1 = n_raft1 - 1;
@@ -266,16 +283,16 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds TP[last_TP-1] = 0;
             last_TP = last_TP - 1;
 
-            R2 = ki*n_mon*n_istar;
-            R5 = ka*n_istar*n_raft1;
-            R6 = 0.5*kf*n_rstar;
-            R7 = 0.5*kf*n_rstar;
-            R9 = ka*n_rad*n_raft1;
+            Re[2] = ki*n_mon*n_istar;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[6] = 0.5*kf*n_rstar;
+            Re[7] = 0.5*kf*n_rstar;
+            Re[9] = ka*n_rad*n_raft1;
 
         elseif reacselec == 6
            #Reacciones[6] += 1
 
-            RTP_selec = iceil(n_rstar*rand());
+            RTP_selec = unsafe_trunc(Int,n_rstar*rand())+1
 
             n_rstar = n_rstar - 1;
             n_rad = n_rad + 1;
@@ -288,18 +305,18 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds RTP[last_RTP-1] = 0;
             last_RTP = last_RTP - 1;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R6 = 0.5*kf*n_rstar;
-            R7 = 0.5*kf*n_rstar;
-            R9 = ka*n_rad*n_raft1;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[6] = 0.5*kf*n_rstar;
+            Re[7] = 0.5*kf*n_rstar;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 7
             #Reacciones[7] += 1
 
-            RTP_selec = iceil(n_rstar*rand());
+            RTP_selec = unsafe_trunc(Int,n_rstar*rand())+1
 
             n_rstar = n_rstar - 1;
             n_istar = n_istar + 1;
@@ -312,11 +329,11 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds RTP[last_RTP-1] = 0;
             last_RTP = last_RTP - 1;
 
-            R2 = ki*n_mon*n_istar;
-            R5 = ka*n_istar*n_raft1;
-            R6 = 0.5*kf*n_rstar;
-            R7 = 0.5*kf*n_rstar;
-            R9 = ka*n_rad*n_raft1;
+            Re[2] = ki*n_mon*n_istar;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[6] = 0.5*kf*n_rstar;
+            Re[7] = 0.5*kf*n_rstar;
+            Re[9] = ka*n_rad*n_raft1;
 
         elseif reacselec == 8
             #Reacciones[8] += 1
@@ -325,13 +342,13 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 9
             #Reacciones[9] += 1
 
-            Rselec = iceil(rand()*n_rad)
+            Rselec = unsafe_trunc(Int,rand()*n_rad)+1
             """
             if Rselec == 0
                 Rselec = n_rad
             end
             """
-            TPselec = iceil(n_raft1*rand());
+            TPselec = unsafe_trunc(Int,n_raft1*rand())+1
 
             n_rad = n_rad - 1;
             n_raft1 = n_raft1 - 1;
@@ -349,14 +366,14 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds TP[last_TP-1] = 0;
             last_TP = last_TP - 1;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R5 = ka*n_istar*n_raft1;
-            R9 = ka*n_rad*n_raft1;
-            R11 = 0.5*kf*n_raft2;
-            R12 = 0.5*kf*n_raft2;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[11] = 0.5*kf*n_raft2;
+            Re[12] = 0.5*kf*n_raft2;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 10
             #Reacciones[10] += 1
@@ -364,7 +381,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 11
             #Reacciones[11] += 1
 
-            PTPselec = iceil(n_raft2*rand());
+            PTPselec = unsafe_trunc(Int,n_raft2*rand())+1
 
             n_raft2 = n_raft2 - 1;
             n_rad = n_rad + 1;
@@ -382,19 +399,19 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             last_R = last_R + 1;
             last_TP = last_TP + 1;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R5 = ka*n_istar*n_raft1;
-            R9 = ka*n_rad*n_raft1;
-            R11 = 0.5*kf*n_raft2;
-            R12 = 0.5*kf*n_raft2;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[11] = 0.5*kf*n_raft2;
+            Re[12] = 0.5*kf*n_raft2;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 12
             #Reacciones[12] += 1
 
-            PTPselec = iceil(n_raft2*rand());
+            PTPselec = unsafe_trunc(Int,n_raft2*rand())+1
 
             n_raft2 = n_raft2 - 1;
             n_rad = n_rad + 1;
@@ -412,24 +429,24 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             last_R = last_R + 1;
             last_TP = last_TP + 1;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R5 = ka*n_istar*n_raft1;
-            R9 = ka*n_rad*n_raft1;
-            R11 = 0.5*kf*n_raft2;
-            R12 = 0.5*kf*n_raft2;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[5] = ka*n_istar*n_raft1;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[11] = 0.5*kf*n_raft2;
+            Re[12] = 0.5*kf*n_raft2;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 13
             #Reacciones[13] += 1
 
-            R1selec = iceil(rand()*(n_rad-1));
-            R2selec = iceil(rand()*(n_rad-1));
+            R1selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
+            R2selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
 
             while R1selec == R2selec
               if n_rad != 2
-                    R2selec = iceil(rand()*(n_rad-1));
+                    R2selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
               else
                   R2selec = 2;
               end
@@ -448,21 +465,21 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds R[last_R-2] = 0;
             last_R = last_R - 2;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R9 = ka*n_rad*n_raft1;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         elseif reacselec == 14
             #Reacciones[14] += 1
 
-            R1selec = iceil(rand()*(n_rad-1));
-            R2selec = iceil(rand()*(n_rad-1));
+            R1selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
+            R2selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
 
             while R1selec == R2selec
               if n_rad != 2
-                    R2selec = iceil(rand()*(n_rad-1));
+                    R2selec = unsafe_trunc(Int,rand()*(n_rad-1))+1
               else
                   R2selec = 2;
               end
@@ -484,11 +501,11 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
             @inbounds R[last_R-2] = 0;
             last_R = last_R - 2;
 
-            R3 = kp*n_mon*n_rad;
-            R4 = ka*n_cta*n_rad;
-            R9 = ka*n_rad*n_raft1;
-            R13 = ktc*n_rad*(n_rad-1);
-            R14 = ktd*n_rad*(n_rad-1);
+            Re[3] = kp*n_mon*n_rad;
+            Re[4] = ka*n_cta*n_rad;
+            Re[9] = ka*n_rad*n_raft1;
+            Re[13] = ktc*n_rad*(n_rad-1);
+            Re[14] = ktd*n_rad*(n_rad-1);
 
         end #if
 
@@ -527,7 +544,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 """
     end #while
 
-#counters = [contadorR1,contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorR10,contadorR11,contadorR12,contadorR13,contadorR14]
+#counters = [contadorRe[1],contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorRe[10],contadorRe[11],contadorRe[12],contadorRe[13],contadorRe[14]]
 
     conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
     return D,PTP1,PTP2,TP,RTP,R,conv
