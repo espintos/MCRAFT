@@ -3,7 +3,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
     """
     Variable initialization starts here.
     When porting to Julia 0.4, pay extra attention to the integer conversion and integer functions.
-    For example, instead of ifloor(x) --> change to floor(Integer, x)
+    For example, instead of floor(Integer,x) --> change to floor(Integer, x)
 
     Defaults: (These are passed as arguments now)
     M0 = 5.0
@@ -27,9 +27,9 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
     t_f = tfinal #this might be unnecesary
 
-    n_mon = ifloor(M0*Avogadrof)
-    n_ini = ifloor(I0*Avogadrof)
-    n_cta = ifloor(CTA0*Avogadrof)
+    n_mon = floor(Integer,M0*Avogadrof)
+    n_ini = floor(Integer,I0*Avogadrof)
+    n_cta = floor(Integer,CTA0*Avogadrof)
     nmon_inic = n_mon
     nini_inic = n_ini
     ncta_inic = n_cta
@@ -105,7 +105,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
     """Debugging variables"""
     """
     species = ["tiempo","M","I","CTA","R","TP*","R*","TP","PTP","D","nothing"]
-    Concentrations = zeros(iceil(t_f/t_print)+1,length(species))
+    Concentrations = zeros(ceil(Integer,t_f/t_print)+1,length(species))
     Concentrations[1,:] = [t_r,M0,I0,CTA0,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]
     print_counter = 1
     """
@@ -165,7 +165,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         #t_r = t_r + (-log(rand()))/(R_t) #original
         #t_r = t_r + rand(Exponential(1/R_t))
         #Also tried creating an array of Exponential(1) but it was the same as previous
-        t_r = t_r + Base.Random.randmtzig_exprnd()/R_t #this is even faster
+        t_r = t_r + randexp()/R_t #this is even faster
         #t_r = t_r + rand()/R_t #stupid test (didnt work, double time, wrong results)
 
 
@@ -207,7 +207,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 3
             #Reacciones[3] += 1
 
-            Rselec = iceil(n_rad*rand())
+            Rselec = ceil(Integer,n_rad*rand())
             """
             if Rselec == 0
                 println("Rselec = 0 en reacselec == 3")
@@ -225,7 +225,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 4
             #Reacciones[4] += 1
 
-            Rselec = iceil(n_rad*rand())
+            Rselec = ceil(Integer,n_rad*rand())
             """
             if Rselec == 0
                 Rselec = n_rad
@@ -253,7 +253,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 5
             #Reacciones[5] += 1
 
-            TPselec = iceil(n_raft1*rand());
+            TPselec = ceil(Integer,n_raft1*rand());
 
             n_istar = n_istar - 1;
             n_raft1 = n_raft1 - 1;
@@ -275,7 +275,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 6
            #Reacciones[6] += 1
 
-            RTP_selec = iceil(n_rstar*rand());
+            RTP_selec = ceil(Integer,n_rstar*rand());
 
             n_rstar = n_rstar - 1;
             n_rad = n_rad + 1;
@@ -299,7 +299,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 7
             #Reacciones[7] += 1
 
-            RTP_selec = iceil(n_rstar*rand());
+            RTP_selec = ceil(Integer,n_rstar*rand());
 
             n_rstar = n_rstar - 1;
             n_istar = n_istar + 1;
@@ -325,13 +325,13 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 9
             #Reacciones[9] += 1
 
-            Rselec = iceil(rand()*n_rad)
+            Rselec = ceil(Integer,rand()*n_rad)
             """
             if Rselec == 0
                 Rselec = n_rad
             end
             """
-            TPselec = iceil(n_raft1*rand());
+            TPselec = ceil(Integer,n_raft1*rand());
 
             n_rad = n_rad - 1;
             n_raft1 = n_raft1 - 1;
@@ -364,7 +364,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 11
             #Reacciones[11] += 1
 
-            PTPselec = iceil(n_raft2*rand());
+            PTPselec = ceil(Integer,n_raft2*rand());
 
             n_raft2 = n_raft2 - 1;
             n_rad = n_rad + 1;
@@ -394,7 +394,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 12
             #Reacciones[12] += 1
 
-            PTPselec = iceil(n_raft2*rand());
+            PTPselec = ceil(Integer,n_raft2*rand());
 
             n_raft2 = n_raft2 - 1;
             n_rad = n_rad + 1;
@@ -424,12 +424,12 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 13
             #Reacciones[13] += 1
 
-            R1selec = iceil(rand()*(n_rad-1));
-            R2selec = iceil(rand()*(n_rad-1));
+            R1selec = ceil(Integer,rand()*(n_rad-1));
+            R2selec = ceil(Integer,rand()*(n_rad-1));
 
             while R1selec == R2selec
               if n_rad != 2
-                    R2selec = iceil(rand()*(n_rad-1));
+                    R2selec = ceil(Integer,rand()*(n_rad-1));
               else
                   R2selec = 2;
               end
@@ -457,12 +457,12 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
         elseif reacselec == 14
             #Reacciones[14] += 1
 
-            R1selec = iceil(rand()*(n_rad-1));
-            R2selec = iceil(rand()*(n_rad-1));
+            R1selec = ceil(Integer,rand()*(n_rad-1));
+            R2selec = ceil(Integer,rand()*(n_rad-1));
 
             while R1selec == R2selec
               if n_rad != 2
-                    R2selec = iceil(rand()*(n_rad-1));
+                    R2selec = ceil(Integer,rand()*(n_rad-1));
               else
                   R2selec = 2;
               end
@@ -492,40 +492,40 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
         end #if
 
-
-"""
-     if n_pol > maxlong[1] #D
-         maxlong[1]=n_pol
-     end
-     if n_rad>maxlong[2] #R
-         maxlong[2]=n_rad
-     end
-     if n_istar>maxlong[3] #
-         maxlong[3]=n_istar
-     end
-     if n_rstar>maxlong[4] #RTP
-         maxlong[4]=n_rstar
-     end
-     if n_raft1>maxlong[5] #TP
-         maxlong[5]=n_raft1
-     end
-     if n_raft2>maxlong[6] #PTP
-         maxlong[6]=n_raft2
-     end
-
-        #iter += 1
-        conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
-"""
-"""
-        if t_r > t_print
-            println(t_print)
-            t_print += 0.1
-            print_counter += 1
-            Concentrations[print_counter,:] = [t_r,n_mon,n_ini,n_cta,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]./Avogadrof
-            Concentrations[print_counter,1] = t_r
-        end
-"""
     end #while
+
+    """
+         if n_pol > maxlong[1] #D
+             maxlong[1]=n_pol
+         end
+         if n_rad>maxlong[2] #R
+             maxlong[2]=n_rad
+         end
+         if n_istar>maxlong[3] #
+             maxlong[3]=n_istar
+         end
+         if n_rstar>maxlong[4] #RTP
+             maxlong[4]=n_rstar
+         end
+         if n_raft1>maxlong[5] #TP
+             maxlong[5]=n_raft1
+         end
+         if n_raft2>maxlong[6] #PTP
+             maxlong[6]=n_raft2
+         end
+
+            #iter += 1
+            conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
+    """
+    """
+            if t_r > t_print
+                println(t_print)
+                t_print += 0.1
+                print_counter += 1
+                Concentrations[print_counter,:] = [t_r,n_mon,n_ini,n_cta,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]./Avogadrof
+                Concentrations[print_counter,1] = t_r
+            end
+    """
 
 #counters = [contadorR1,contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorR10,contadorR11,contadorR12,contadorR13,contadorR14]
 
