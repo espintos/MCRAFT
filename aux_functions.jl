@@ -37,28 +37,37 @@ function get_histogram(D)
     end
 end
 
-function equalize_length2(names,v1...)
-    max_length=1
-    for i = 1:(length(v1))
-        if length(v1[i]) > max_length
-            max_length = length(v1[i])
-        end
-    end
-    for i = 1:(length(v1))
-        append!(v1[i],zeros(max_length-length(v1[i])))
-    end
+function equalize_length2(names,v1)
+  """
+  v is a vector of vectors, where the first vector is D already in the histogram representation
+  and the other vectors are in the direct representation
+  """
+  v1[1]=removezeros(v1[1])
+  for i = 2:length(v1)
+    v1[i]=get_histogram(v1[i])
+  end
 
-    suma = v1[1]
-    for i = 2:(length(v1))
-        suma += v1[i]
+  max_length=1
+  for i = 1:(length(v1))
+    if length(v1[i]) > max_length
+      max_length = length(v1[i])
     end
+  end
+  for i = 1:(length(v1))
+    append!(v1[i],zeros(max_length-length(v1[i])))
+  end
 
-    DF = DataFrame(x=1:max_length, y=v1[1], N=names[1])
+  suma = v1[1]
+  for i = 2:(length(v1))
+    suma += v1[i]
+  end
 
-    for i = 2:length(v1)
-        DF = vcat(DF,DataFrame(x=1:max_length, y=v1[i], N=names[i]))
-    end
-    return suma,DF
+  DF = DataFrame(x=1:max_length, y=v1[1], N=names[1])
+
+  for i = 2:length(v1)
+    DF = vcat(DF,DataFrame(x=1:max_length, y=v1[i], N=names[i]))
+  end
+  return suma,DF
 end
 
 function equalize_length3(names,v1...)

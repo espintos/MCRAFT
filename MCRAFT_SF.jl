@@ -532,7 +532,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 #counters = [contadorR1,contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorR10,contadorR11,contadorR12,contadorR13,contadorR14]
 
     conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
-    return D,PTP1,PTP2,TP,RTP,R,conv
+    return Vector{Int32}[D,PTP1,PTP2,TP,RTP,R]
 
 end #function
 end #module
