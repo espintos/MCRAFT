@@ -12,7 +12,7 @@ function getmwdw(H)
     H is a vector with the Histogram Representation
     """
     H=removezeros(H)
-    MWD=((1:length(H)).*H)./sum([1:length(H)].*H)
+    MWD=((1:length(H)).*H)./sum((1:length(H)).*H)
     return MWD
 end
 
@@ -40,8 +40,11 @@ end
 function equalize_length2(names,v1)
   """
   v is a vector of vectors, where the first vector is D already in the histogram representation
-  and the other vectors are in the direct representation
+  and the other vectors are in the direct representation.
+  the second and third vectors are PTP1 and PTP2
   """
+  v1 = Vector{Int32}[v1[1],v1[2]+v1[3],v1[4],v1[5],v1[6]]
+
   v1[1]=removezeros(v1[1])
   for i = 2:length(v1)
     v1[i]=get_histogram(v1[i])
@@ -88,9 +91,6 @@ function equalize_length3(names,v1...)
 
     denom = sum([1:length(suma)].*suma)
     suma = getmwdw(suma)
-
-
-
     DF = DataFrame(x=1:max_length, y=suma, N="FULL")
 
     for i = 1:length(v1)

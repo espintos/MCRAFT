@@ -1,25 +1,25 @@
 function simpleplot(Vec)
     """
     A single Polymer MWDw plot. (dots and smoothed line)
-    Vec its a vector with the "Direct representation"
+    Vec its a vector with the "Histogram representation"
     """
     D66=removezeros(Vec)
-    D666=((1:length(D66)).*D66;)./sum([1:length(D66)].*D66)
+    D666=((1:length(D66)).*D66)./sum([1:length(D66)].*D66)
 
     plot(
 
     layer(x=1:length(D66),
     y=D666, Geom.smooth(method=:loess,smoothing=0.20),
-    Theme(default_color=color("red"))),
+    Theme(default_color=colorant"red")),
 
     layer(x=1:length(D666), y=D666,
     Geom.point,
-    Theme(default_point_size=0.6mm, default_color=color("black"))),
+    Theme(default_point_size=0.6mm, default_color=colorant"black")),
 
     Theme(grid_line_width=0mm,
-    panel_stroke=color("black")),
-    Guide.xticks(ticks=[0:100:length(D666)]),
-    Guide.yticks(ticks=[0:0.001:maximum(D666)]),
+    panel_stroke=colorant"black"),
+    Guide.xticks(ticks=[0:get_range_interval(0,length(D666)):length(D666)]),
+    Guide.yticks(ticks=[0:get_range_interval(0,maximum(D666)):maximum(D666)]),
     Guide.xlabel("chain length"),
     Guide.ylabel("weight franction", orientation=:vertical)
 
@@ -33,22 +33,22 @@ function multipleplot(N,v1,v2...)
     v1, v2, etc... are the arrays to plot.
     """
     DF =  DataFrame(x=1:length(getmwdw(v1)), y=getmwdw(v1)*1000, N=string(N[1]))
-        for i = 2:(length(v2)+1)
-            DF = vcat(DF,DataFrame(x=1:length(getmwdw(v2[i-1])), y=getmwdw(v2[i-1])*1000, N=string(N[i])))
-        end
+    for i = 2:(length(v2)+1)
+        DF = vcat(DF,DataFrame(x=1:length(getmwdw(v2[i-1])), y=getmwdw(v2[i-1])*1000, N=string(N[i])))
+    end
 
     p = plot(DF, x=:x, y=:y, color=:N, Geom.smooth(method=:loess,smoothing=0.30),
 
     Theme(grid_line_width=0mm,
     guide_title_position=:center,
     key_position=:right,
-    panel_stroke=color("grey"),
+    panel_stroke=colorant"grey",
     major_label_font_size=10pt),
 
     Scale.color_discrete_manual("red","orange","green","black","blue","cyan"),
     #Scale.y_continuous(minvalue=0, format=:scientific ),
-    Guide.xticks(ticks=[0:100:500]),
-    Guide.yticks(ticks=[0:1:7]),
+    Guide.xticks(ticks=[0:get_range_interval(0,maximum(DF[:x])):maximum(DF[:x])]),
+    Guide.yticks(ticks=[0:get_range_interval(0,maximum(DF[:y])):maximum(DF[:y])]),
     Guide.xlabel("chain length"),
     Guide.ylabel("weight fraction x 10⁻³", orientation=:vertical)
     )
@@ -72,14 +72,15 @@ layer(x=1:length(D111),y=D111,
     Geom.smooth(method=:loess,smoothing=0.05),
     Theme(default_color=color("red"))),
     Guide.manual_color_key("",["Monte Carlo", "gProms"],["red", "blue"]),
-    Guide.xticks(ticks=[0:100:length(D111)]),Guide.yticks(ticks=[0:0.001:maximum(D111)]),
+    Guide.xticks(ticks=[0:get_range_interval(0,length(D111)):length(D111)]),
+    Guide.yticks(ticks=[0:get_range_interval(maximum(D111)):maximum(D111)]),
     Guide.ylabel("Chain length"), # label for y-axis
     Guide.xlabel("Weight fraction"),  # label for x-axis
     Guide.title(""),
 
 layer(x=1:length(D111), y=D111,
     Geom.point,
-    Theme(default_point_size=0.6mm,default_color=color("red"))),
+    Theme(default_point_size=0.6mm,default_color=colorant"red")),
 
 
 layer(x=1:length(G1),
@@ -99,7 +100,8 @@ layer(x=1:length(D111), y=D111,
     Geom.point,
     Theme(default_point_size=0.6mm,default_color=color("red"))),
     Guide.manual_color_key("",["Monte Carlo", "gProms"],["red", "blue"]),
-    Guide.xticks(ticks=[0:100:length(D111)]),Guide.yticks(ticks=[0:0.001:maximum(D111)]),
+    Guide.xticks(ticks=[0:get_range_interval(0,length(D111)):length(D111)]),
+    Guide.yticks(ticks=[0:get_range_interval(maximum(D111)):maximum(D111)]),
     Guide.ylabel("Chain length"), # label for y-axis
     Guide.xlabel("Weight fraction"),  # label for x-axis
     Guide.title("")
@@ -115,7 +117,8 @@ layer(x=1:length(D111),y=D111,
     Geom.smooth(method=:loess,smoothing=0.05),
     Theme(default_color=color("red"))),
     Guide.manual_color_key("",["Monte Carlo", "gProms"],["red", "blue"]),
-    Guide.xticks(ticks=[0:500:length(D111)]),Guide.yticks(ticks=[0:0.001:maximum(D111)]),
+    Guide.xticks(ticks=[0:get_range_interval(0,length(D111)):length(D111)]),
+    Guide.yticks(ticks=[0:get_range_interval(maximum(D111)):maximum(D111)]),
     Guide.xlabel("Chain length"), # label for y-axis
     Guide.ylabel("Weight fraction"),  # label for x-axis
     Guide.title(""),
@@ -265,7 +268,7 @@ end
     #RUNS is the matrix with the runs, each column a run.
 """
 
-function getloess (x,y,smoothfactor)
+function getloess(x,y,smoothfactor)
         x=float64([1:length(y)]);
         y=squeeze(y,2);
         model=Loess.loess(x,y,span=smoothfactor);
@@ -391,14 +394,52 @@ function full_mwd_plot(DF)
     Theme(grid_line_width=0mm,
     guide_title_position=:center,
     key_position=:right,
-    panel_stroke=color("grey"),
+    panel_stroke=colorant"grey",
+    panel_stroke=colorant"grey",
     major_label_font_size=10pt),
 
     Scale.color_discrete_manual("red","orange","green","black","blue","cyan"),
     #Scale.y_continuous(minvalue=0, format=:scientific ),
-    Guide.xticks(ticks=[0:200:maximum(aaaa[:x])]),
-    Guide.yticks(ticks=[0:0.001:maximum(DF[:y])]),
+    Guide.xticks(ticks=[0:get_range_interval(0,maximum(DF[:x])):maximum(DF[:x])]),
+    Guide.yticks(ticks=[0:get_range_interval(0,maximum(DF[:y])):maximum(DF[:y])]),
     Guide.xlabel("chain length"),
     Guide.ylabel("weight fraction x 10⁻³", orientation=:vertical)
     )
+end
+
+function get_range_interval(min_value, max_value, min_interval=3, max_interval=10)
+  """
+  Returns an apropriate multiple of 10, that will partitions the
+  interval limited by min_value and max_value in a number between the values of
+  min_interval (defaults to 3) and max_interval (defaults to 10)
+  """
+  if min_value >= max_value
+    error("ERROR in get_range_interval: max_value should be > than min_value")
+  elseif min_interval >= max_interval
+    error("ERROR in get_range_interval:  max_interval should be > than min_interval")
+  end
+
+  n=20
+  values=Float64[]
+  ex=(-n/2)
+  for i = 1:n-1
+    for j =1:3
+      if j == 1
+        push!(values,round(10^ex,Int(n/2)))
+      elseif j == 2
+        push!(values,round(2*10^ex,Int(n/2)))
+      elseif j == 3
+        push!(values,round(5*10^ex,Int(n/2)))
+      end
+    end
+    ex += 1
+  end
+
+  dif=max_value-min_value
+  for i in values
+    if dif/i > min_interval && dif/i < max_interval
+      return i
+    end
+  end
+  error("ERROR in get_range_interval: try adjusting interval values")
 end
