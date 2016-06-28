@@ -12,8 +12,7 @@ end
 N=[1e6,1e7,1e8,1e9]
 
 TP, PTP1, PTP2, RTP, D, R, Re = initialize_vectors()
-MC1=MCRAFT_SF_prerun(1e8,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re)
+times,indices_matrix=MCRAFT_SF_prerun(1e7,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re)
 
-MC1
-
-clipboard(transpose(MC1))
+times
+indices_matrix

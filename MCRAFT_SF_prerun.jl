@@ -1,5 +1,3 @@
-module Tmp
-
 """
 Nested functions generate allocation.
 This is why the linearwalk() function its outside MCRAFT_SF()
@@ -112,6 +110,7 @@ function MCRAFT_SF_prerun(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re)
 
     """Debugging variables"""
     time_conv_reacs=zeros(16)
+    time_conv_indices=zeros(16)
     Reactions = zeros(14)
     interval_fixed = 0.5
     interval = interval_fixed
@@ -462,9 +461,10 @@ function MCRAFT_SF_prerun(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re)
         if t_r > interval
           new_sorted_indices = sortperm(Reactions, rev=true)
           if new_sorted_indices[1:4] != sorted_indices[1:4]
-            time_conv_reacs=hcat(time_conv_reacs,vcat(t_r,conv,Reactions))
+            #time_conv_reacs=hcat(time_conv_reacs,vcat(t_r,conv,Reactions))
+            time_conv_indices=hcat(time_conv_indices,vcat(t_r,conv,new_sorted_indices))
             interval += interval_fixed*0.2
-            Reactions=zeros(14)
+            #Reactions=zeros(14)
           else
             interval += interval_fixed*1.5
           end
@@ -504,6 +504,9 @@ function MCRAFT_SF_prerun(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re)
 
     conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
     #return Vector{Int32}[D,PTP1,PTP2,TP,RTP,R]
-    return time_conv_reacs
+    times = squeeze(time_conv_indices[1,:],1)
+    push!(times,t_f+1.0)
+    matrix_indices = int(time_conv_indices[3:end,:])
+    matrix_indices = hcat(matrix_indices,matrix_indices[:,end]) #duplicates las column
+    return times,matrix_indices
 end #function
-end #module
