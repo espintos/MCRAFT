@@ -42,8 +42,12 @@ DF4=equalize_length2(nombres,MC4)
 
 multipleplot(N[2:end],DF2[1],DF3[1],DF4[1])
 
-TP, PTP1, PTP2, RTP, D, R, Re = initialize_vectors()
-Profile.clear()
-@profile MC3=MCRAFT_IRTO(1e8,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re,times,indices_matrix)
+@profile MC3=MCRAFT_SF(1e8,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re)
 
 Profile.print()
+
+a=7.2712999512e7
+r=7.219919099983637e7
+A=[35.855999999999995,0.0,3.5991667655999996e7,3.599985599999999e7,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,360719.99999999994,360719.99999999994,0.0,0.0,0.0]
+
+get_reac(A,r)
