@@ -35,3 +35,22 @@ DF3=equalize_length2(nombres,MC3)
 DF4=equalize_length2(nombres,MC4)
 
 multipleplot(N[2:end],DF2[1],DF3[1],DF4[1])
+
+"""
+Estos son convirtiendo a vector
+1e6    .082439 seconds (6 allocations: 448 bytes)
+1e7   0.797506 seconds (7 allocations: 496 bytes)
+1e8   8.879239 seconds (7 allocations: 496 bytes)
+1e9 178.099637 seconds (7 allocations: 496 bytes)
+
+
+Estos usando la funcion get_reac
+1e6   0.091892 seconds (6 allocations: 448 bytes)
+1e7   0.866231 seconds (7 allocations: 496 bytes)
+1e8   9.929670 seconds (7 allocations: 496 bytes)
+1e9 182.578304 seconds (7 allocations: 496 bytes)
+"""
+
+@profile MCRAFT_SF(1e8,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R)
+
+Profile.print()
