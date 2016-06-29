@@ -45,3 +45,16 @@ Profile.print()
 
 @allocated MC2=MCRAFT_SF(1e7,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re);
 Profile.clear_malloc_data()
+
+"""
+1e6   0.097464 seconds (6 allocations: 448 bytes)
+1e7   0.981827 seconds (7 allocations: 496 bytes)
+1e8  11.804377 seconds (7 allocations: 496 bytes)
+1e9 219.272829 seconds (7 allocations: 496 bytes)
+
+Changing sum(Re) for a manual sum of all elements
+1e6   0.084297 seconds (6 allocations: 448 bytes)
+1e7   0.846522 seconds (7 allocations: 496 bytes)
+1e8   9.532768 seconds (7 allocations: 496 bytes)
+1e9 190.943252 seconds (7 allocations: 496 bytes)
+"""

@@ -134,7 +134,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re)
 
     #MC simluation starts here
     while t_r < t_f
-      R_t=sum(Re)
+      R_t=(Re[1]+Re[2]+Re[3])+(Re[4]+Re[5]+Re[6])+(Re[7]+Re[8]+Re[9])+(Re[10]+Re[11]+Re[12]+Re[13]+Re[14])
       reacselec = linearwalk(Re,R_t)
 
 
