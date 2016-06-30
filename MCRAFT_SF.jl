@@ -10,12 +10,10 @@ function linearwalk_sorted(Re, sorted_indices, suma)
   partialcumsum = 0.0
   r = rand()*suma
   i = 1
-  a=1
   while true
-    @inbounds a=sorted_indices[i]
-      @inbounds partialcumsum += Re[a]
+      @inbounds partialcumsum += Re[sorted_indices[i]]
       if r <= partialcumsum
-          return a
+          return sorted_indices[i]
       end
       i += 1
   end
@@ -74,9 +72,6 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re,times,indices_mat
 
     t_r = 0.0
 
-    #Reaction counters, these are for debugging purposes only.
-    #Reacciones = zeros(Int,14)
-
 
     """
     These are used to track the last element added to the array, right now this is faster than
@@ -88,8 +83,6 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re,times,indices_mat
     last_RTP = 1
     last_PTP = 1
 
-    #This is to print every t_print hrs of reaction time - mainly for debugging purposes.
-    t_print=0.001
 
     """
     Initially the MC rate constants were inside the MC loop, since for this particular reaction set
@@ -139,21 +132,13 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re,times,indices_mat
     print_counter = 1
     """
 
-
-
     #MC simluation starts here
     while t_r < t_f
-      R_t=sum(Re)
+      R_t=R_t=(Re[1]+Re[2]+Re[3])+(Re[4]+Re[5]+Re[6])+(Re[7]+Re[8]+Re[9])+(Re[10]+Re[11]+Re[12]+Re[13]+Re[14])
       reacselec = linearwalk_sorted(Re,sorted_indices,R_t)
 
-
         #Reaction time update (This might change in 0.4 to randexp() )
-        #t_r = t_r + (-log(rand()))/(R_t) #original
-        #t_r = t_r + rand(Exponential(1/R_t))
-        #Also tried creating an array of Exponential(1) but it was the same as previous
         t_r = t_r + randexp()/R_t #this is even faster
-        #t_r = t_r + rand()/R_t #stupid test (didnt work, double time, wrong results)
-
 
         if reacselec == 1
             #Reacciones[1] += 1
@@ -479,46 +464,44 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R,Re,times,indices_mat
 
         if t_r > matrix_t
           matrix_i += 1
-          sorted_indices = sorted_indices = matrix[:,matrix_i]
+          sorted_indices = matrix[:,matrix_i]
           matrix_t = tiempos[matrix_i]
         end
 
     end #while
 
     """
-         if n_pol > maxlong[1] #D
-             maxlong[1]=n_pol
-         end
-         if n_rad>maxlong[2] #R
-             maxlong[2]=n_rad
-         end
-         if n_istar>maxlong[3] #
-             maxlong[3]=n_istar
-         end
-         if n_rstar>maxlong[4] #RTP
-             maxlong[4]=n_rstar
-         end
-         if n_raft1>maxlong[5] #TP
-             maxlong[5]=n_raft1
-         end
-         if n_raft2>maxlong[6] #PTP
-             maxlong[6]=n_raft2
-         end
-
-            #iter += 1
-            conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
+    if n_pol > maxlong[1] #D
+      maxlong[1]=n_pol
+    end
+    if n_rad>maxlong[2] #R
+      maxlong[2]=n_rad
+    end
+    if n_istar>maxlong[3] #
+      maxlong[3]=n_istar
+    end
+    if n_rstar>maxlong[4] #RTP
+      maxlong[4]=n_rstar
+    end
+    if n_raft1>maxlong[5] #TP
+      maxlong[5]=n_raft1
+    end
+    if n_raft2>maxlong[6] #PTP
+      maxlong[6]=n_raft2
+    end
+    iter += 1
+    conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
     """
     """
-            if t_r > t_print
-                println(t_print)
-                t_print += 0.1
-                print_counter += 1
-                Concentrations[print_counter,:] = [t_r,n_mon,n_ini,n_cta,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]./Avogadrof
-                Concentrations[print_counter,1] = t_r
-            end
+    if t_r > t_print
+      println(t_print)
+      t_print += 0.1
+      print_counter += 1
+      Concentrations[print_counter,:] = [t_r,n_mon,n_ini,n_cta,n_rad,n_istar,n_rstar,n_raft1,n_raft2,n_pol,n_nothing]./Avogadrof
+      Concentrations[print_counter,1] = t_r
+    end
     """
-
-#counters = [contadorR1,contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorR10,contadorR11,contadorR12,contadorR13,contadorR14]
+    #counters = [contadorR1,contadorR2,contadorR3,contadorR4,contadorR5,contadorR6,contadorR7,contadorR8,contadorR9,contadorR10,contadorR11,contadorR12,contadorR13,contadorR14]
 
     conv = 100.0*(nmon_inic - n_mon)/(nmon_inic)
     return Vector{Int32}[D,PTP1,PTP2,TP,RTP,R]
