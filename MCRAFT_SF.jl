@@ -122,45 +122,49 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
 
         r2 = rand()*R_t;
 
-        if r2 > (R1+R2+R3+R4)
-            reacselec = 5;
-            if r2 > (R1+R2+R3)+(R4+R5)
-                reacselec = 6;
-                if r2 > (R1+R2+R3)+(R4+R5+R6)
-                    reacselec = 7;
-                    #if r2 > (R1+R2+R3+R4+R5+R6+R7)/(R_t)
-                        #reacselec = 8;
-                        if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8)
-                            reacselec = 9;
-                            #if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9)/(R_t)
-                                #reacselec = 10;
-                                if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8+R9+R10)
-                                    reacselec = 11;
-                                    if r2 > (R1+R2+R3+R4)+(R5+R6+R7+R8)+(R9+R10+R11)
-                                        reacselec = 12;
-                                        if r2 > (R1+R2+R3+R4)+(R5+R6+R7+R8)+(R9+R10+R11+R12)
-                                            reacselec = 13;
-                                            if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8+R9)+(R10+R11+R12+R13)
-                                                reacselec = 14;
-                                            end
-                                        end
-                                    end
-                                end
-                            #end
-                        end
-                    #end
-                end
-            end
-        elseif r2 > (R1+R2)
+        if r2 > R1
+          reacselec = 2
+          if r2 > (R1+R2)
             reacselec = 3;
             if r2 > (R1+R2+R3)
-                reacselec = 4;
+              reacselec = 4;
+              if r2 > (R1+R2+R3+R4)
+                reacselec = 5;
+                if r2 > (R1+R2+R3)+(R4+R5)
+                  reacselec = 6;
+                  if r2 > (R1+R2+R3)+(R4+R5+R6)
+                    reacselec = 7;
+                    #if r2 > (R1+R2+R3+R4+R5+R6+R7)/(R_t)
+                    #reacselec = 8;
+                    if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8)
+                      reacselec = 9;
+                      #if r2 > (R1+R2+R3+R4+R5+R6+R7+R8+R9)/(R_t)
+                      #reacselec = 10;
+                      if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8+R9+R10)
+                        reacselec = 11;
+                        if r2 > (R1+R2+R3+R4)+(R5+R6+R7+R8)+(R9+R10+R11)
+                          reacselec = 12;
+                          if r2 > (R1+R2+R3+R4)+(R5+R6+R7+R8)+(R9+R10+R11+R12)
+                            reacselec = 13;
+                            if r2 > (R1+R2+R3)+(R4+R5+R6)+(R7+R8+R9)+(R10+R11+R12+R13)
+                              reacselec = 14;
+                            end
+                          end
+                        end
+                      end
+                      #end
+                    end
+                    #end
+                  end
+                end
+              end
             end
-        elseif r2 < R1 #CUIDADO ACA DI VUELTA EL SIGNO DE LA DESIGUALDAD y la reaccion
-            reacselec = 1;
+          end
         else
-            reacselec = 2;
+          reacselec = 1;
         end
+
+
 
 
         #Reaction time update (This might change in 0.4 to randexp() )
