@@ -35,3 +35,10 @@ DF3=equalize_length2(nombres,MC3)
 DF4=equalize_length2(nombres,MC4)
 
 multipleplot(N[2:end],DF2[1],DF3[1],DF4[1])
+
+"""
+1e6   0.067224 seconds (5 allocations: 272 bytes)
+1e7   0.652056 seconds (6 allocations: 320 bytes)
+1e8   7.574870 seconds (6 allocations: 320 bytes)
+1e9 151.965450 seconds (5 allocations: 272 bytes)
+"""
