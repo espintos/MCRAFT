@@ -164,16 +164,7 @@ function MCRAFT_SF(N,tfinal,M0,I0,CTA0,TP,PTP1,PTP2,RTP,D,R)
           reacselec = 1;
         end
 
-
-
-
-        #Reaction time update (This might change in 0.4 to randexp() )
-        #t_r = t_r + (-log(rand()))/(R_t) #original
-        #t_r = t_r + rand(Exponential(1/R_t))
-        #Also tried creating an array of Exponential(1) but it was the same as previous
         t_r = t_r + randexp()/R_t #this is even faster
-        #t_r = t_r + rand()/R_t #stupid test (didnt work, double time, wrong results)
-
 
         if reacselec == 1
             #Reacciones[1] += 1
