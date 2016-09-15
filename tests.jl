@@ -14,6 +14,18 @@ function initialize_vectors()
   return TP,PTP1,PTP2,RTP,D,R
 end
 
+function MC_bench(N,samples)
+  a=zeros(Float64,Int(samples))
+  for i = 1:samples
+    TP, PTP1, PTP2, RTP, D, R = initialize_vectors()
+    a[i] = @elapsed MCRAFT_SF(N,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R)
+  end
+  return a
+end
+
+results1e9 = MC_bench(1e9,100)
+clipboard(results1e9)
+
 N=[1e6,1e7,1e8,1e9]
 
 TP, PTP1, PTP2, RTP, D, R = initialize_vectors()
@@ -35,11 +47,3 @@ DF3=equalize_length2(nombres,MC3)
 DF4=equalize_length2(nombres,MC4)
 
 multipleplot(N[2:end],DF2[1],DF3[1],DF4[1])
-
-
-"""
-1e6   0.076027 seconds (5 allocations: 272 bytes)
-1e7   0.767984 seconds (6 allocations: 320 bytes)
-1e8   8.881014 seconds (6 allocations: 320 bytes)
-1e9 162.182783 seconds (6 allocations: 320 bytes)
-"""
