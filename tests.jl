@@ -18,6 +18,18 @@ end
 
 N=[1e6,1e7,1e8,1e9]
 
+function MC_bench(N,samples)
+  a=zeros(Float64,Int(samples))
+  for i = 1:samples
+    TP, PTP1, PTP2, RTP, D, R = initialize_vectors()
+    a[i] = @elapsed MCRAFT_SF(N,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re)
+  end
+  return a
+end
+
+results1e9 = MC_bench(1e9,100)
+clipboard(results1e9) 
+
 TP, PTP1, PTP2, RTP, D, R, Re = initialize_vectors()
 @time MC1=MCRAFT_SF(1e6,34,5,5e-3,5e-3,TP,PTP1,PTP2,RTP,D,R,Re)
 
